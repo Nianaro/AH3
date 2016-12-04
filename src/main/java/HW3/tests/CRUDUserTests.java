@@ -134,15 +134,6 @@ public class CRUDUserTests {
 
     /**
      * Post-conditions:
-     * 1. Close page.
-     */
-    @AfterMethod
-    public void afterMethod(){
-        webDriver.close();
-    }
-
-    /**
-     * Post-conditions:
      * 1. Close browser.
      */
     @AfterTest
