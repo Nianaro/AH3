@@ -1,10 +1,6 @@
 package HW3.tests;
 
-import HW3.Data.EditPlayerPageData;
-import HW3.Data.LogInPageData;
-import HW3.Data.PlayersPageData;
 import HW3.Entities.PokerPlayer;
-import HW3.Utils.Util;
 import HW3.pages.EditPlayerPage;
 import HW3.pages.LoginPage;
 import HW3.pages.PlayersPage;
@@ -12,6 +8,7 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.firefox.FirefoxDriver;
 import org.testng.Assert;
 import org.testng.annotations.*;
+import org.testng.asserts.SoftAssert;
 
 import java.util.concurrent.TimeUnit;
 
@@ -20,7 +17,33 @@ public class CRUDUserTests {
     private WebDriver webDriver;
     private PlayersPage playersPage;
     private EditPlayerPage editPlayerPage;
+    private LoginPage logInPage;
     private PokerPlayer pokerPlayer;
+
+    @DataProvider
+    public Object[][] createUserData(){
+        return new Object[][]{{
+            "admin", "123", "Players", "Players - Edit", "@gmail.com", "FN", "LN", "UK", "Kharkov", "address", "+1234567890"
+        }};
+    }
+    @DataProvider
+    public Object[][] readUserData(){
+        return new Object[][]{{
+                "admin", "123", "Players", "Players - Edit", "@gmail.com", "FN", "LN", "UK", "Kharkov", "address", "+1234567890"
+        }};
+    }
+    @DataProvider
+    public Object[][] updateUserData(){
+        return new Object[][]{{
+                "admin", "123", "Players", "Players - Edit", "@gmail.com", "FN", "LN", "UK", "Kharkov", "address", "+1234567890", "First Name", "Last Name", "Kiev", "new", "no phone"
+        }};
+    }
+    @DataProvider
+    public Object[][] deleteData(){
+        return new Object[][]{{
+                "Player has been deleted", "admin", "123", "Players", "Players - Edit", "@gmail.com", "FN", "LN", "UK", "Kharkov", "address", "+1234567890"
+        }};
+    }
 
     /**
      * Precondition:
@@ -35,20 +58,30 @@ public class CRUDUserTests {
 
     /**
      * Precondition:
-     * 1. Create player.
-     * 2. Open login page.
-     * 3. Log in.
-     * 4. Open "Insert - Player" page.
-     * 5. Add new player.
-     * 6. Verify that title equals "Players".
+     * 1. Open login page.
      */
     @BeforeMethod
     public void beforeMethod(){
-        pokerPlayer = new PokerPlayer(EditPlayerPageData.NEW_USER_EMAIL_DOMEN_INPUT_VALUE_INSERT_EDIT_PAGE.toString(), EditPlayerPageData.NEW_USER_FIRST_NAME_INPUT_VALUE_INSERT_EDIT_PAGE.toString(), EditPlayerPageData.NEW_USER_LAST_NAME_INPUT_VALUE_INSERT_EDIT_PAGE.toString(), EditPlayerPageData.NEW_USER_COUNTRY_INPUT_VALUE_INSERT_EDIT_PAGE.toString(), EditPlayerPageData.NEW_USER_CITY_INPUT_VALUE_INSERT_EDIT_PAGE.toString(), EditPlayerPageData.NEW_USER_ADDRESS_INPUT_VALUE_INSERT_EDIT_PAGE.toString(), EditPlayerPageData.NEW_USER_PHONE_INPUT_VALUE_INSERT_EDIT_PAGE.toString());
-
-        LoginPage logInPage = new LoginPage(webDriver);
+        logInPage = new LoginPage(webDriver);
         logInPage.openHomePage();
-        logInPage.login(LogInPageData.USER_NAME_INPUT_VALUE_LOGIN_PAGE.toString(), LogInPageData.PASSWORD_INPUT_VALUE_LOGIN_PAGE.toString());
+    }
+
+    /**
+     * Steps to reproduce:
+     * 1. Create player.
+     * 2. Log in.
+     * 3 Open "Insert - Player" page.
+     * 4. Add new player.
+     * 5. Verify that title equals "Players".
+     * 6. Find player by email.
+     * 7. Open edit page for the player.
+     * 8. Verify that title equals "Players - Edit".
+     */
+    @Test(dataProvider = "createUserData")
+    public void create(String username, String password, String playersTitle, String editPlayersTitle, String emailDomein, String firstName, String lastName, String country, String city, String address, String phone){
+        pokerPlayer = new PokerPlayer(emailDomein, firstName, lastName, country, city, address, phone);
+
+        logInPage.login(username, password);
 
         playersPage = new PlayersPage(webDriver);
         playersPage.openInsertPlayerPage();
@@ -56,80 +89,93 @@ public class CRUDUserTests {
         editPlayerPage = new EditPlayerPage(webDriver);
         editPlayerPage.addPlayer(pokerPlayer);
 
-        Assert.assertEquals(PlayersPageData.TITLE_PLAYERS_PAGE.toString(), webDriver.getTitle(), "Title of site is wrong");
+        Assert.assertEquals(playersTitle, webDriver.getTitle(), "Title of site is wrong");
 
+        playersPage.searchPlayerByEmail(pokerPlayer.getEmail());
+        playersPage.openEditPlayerPage(pokerPlayer.getEmail());
+
+        Assert.assertEquals(editPlayersTitle, webDriver.getTitle(), "Player has not been added");
+
+        editPlayerPage.openPlayersPage();
     }
 
     /**
      * Steps to reproduce:
-     * 1. Find player by email.
-     * 2. Open edit page for the player.
-     * 3. Verify that title equals "Players - Edit".
+     * 1. Create player.
+     * 2. Find player by email.
+     * 3. Open edit page for the player.
+     * 4. Read data for player.
      */
-    @Test
-    public void create(){
+    @Test(dataProvider = "createUserData")
+    public void read(String username, String password, String playersTitle, String editPlayersTitle, String emailDomein, String firstName, String lastName, String country, String city, String address, String phone){
+        create(username, password, playersTitle, editPlayersTitle, emailDomein, firstName, lastName, country, city, address, phone);
+
         playersPage.searchPlayerByEmail(pokerPlayer.getEmail());
         playersPage.openEditPlayerPage(pokerPlayer.getEmail());
 
-        Assert.assertEquals(EditPlayerPageData.TITLE_EDIT_PAGE.toString(), webDriver.getTitle(), "Player has not been added");
+        EditPlayerPage editPlayerPage = new EditPlayerPage(webDriver);
+        editPlayerPage.readPokerPlayers();
     }
 
     /**
      * Steps to reproduce:
-     * 1. Find player by email.
-     * 2. Open edit page for the player.
-     * 3. Read data for player.
+     * 1. Create player.
+     * 2. Find the player by email.
+     * 3. Open edit page for the player.
+     * 4. Verify that title of page equals "Players - Edit".
+     * 5. Change information about the player.
+     * 6. Verify that title of page equals "Players".
+     * 7. Find the player by email.
+     * 8. Open edit page for the player.
+     * 9. Read information about the player.
+     * 10. Check update of the player.
      */
-    @Test
-    public void read(){
+    @Test(dataProvider = "updateUserData")
+    public void update(String username, String password, String playersTitle, String editPlayersTitle, String emailDomein, String firstName, String lastName, String country, String city, String address, String phone, String newFirstName, String newLastName, String newCity, String newAddress, String newPhone){
+        create(username, password, playersTitle, editPlayersTitle, emailDomein, firstName, lastName, country, city, address, phone);
+
         playersPage.searchPlayerByEmail(pokerPlayer.getEmail());
         playersPage.openEditPlayerPage(pokerPlayer.getEmail());
 
-        PokerPlayer actual = Util.readPokerPlayers(webDriver);
-    }
+        Assert.assertEquals(editPlayersTitle, webDriver.getTitle(), "Can not find user");
 
-    /**
-     * Steps to reproduce:
-     * 1. Find the player by email.
-     * 2. Open edit page for the player.
-     * 3. Verify that title of page equals "Players - Edit".
-     * 4. Change information about the player.
-     * 5. Verify that title of page equals "Players".
-     * 6. Find the player by email.
-     * 7. Open edit page for the player.
-     * 8. Read information about the player.
-     * 9. Check update of the player.
-     */
-    @Test
-    public void update(){
-        playersPage.searchPlayerByEmail(pokerPlayer.getEmail());
-        playersPage.openEditPlayerPage(pokerPlayer.getEmail());
-
-        Assert.assertEquals(EditPlayerPageData.TITLE_EDIT_PAGE.toString(), webDriver.getTitle(), "Can not find user");
-
-        pokerPlayer.setFirstName(EditPlayerPageData.EDIT_USER_FIRST_NAME_INPUT_VALUE_INSERT_EDIT_PAGE.toString());
-        pokerPlayer.setLastName(EditPlayerPageData.EDIT_USER_LAST_NAME_INPUT_VALUE_INSERT_EDIT_PAGE.toString());
-        pokerPlayer.setCity(EditPlayerPageData.EDIT_USER_CITY_INPUT_VALUE_INSERT_EDIT_PAGE.toString());
-        pokerPlayer.setAddress(EditPlayerPageData.EDIT_USER_ADDRESS_INPUT_VALUE_INSERT_EDIT_PAGE.toString());
-        pokerPlayer.setPhone(EditPlayerPageData.EDIT_USER_PHONE_INPUT_VALUE_INSERT_EDIT_PAGE.toString());
+        pokerPlayer.setFirstName(newFirstName);
+        pokerPlayer.setLastName(newLastName);
+        pokerPlayer.setCity(newCity);
+        pokerPlayer.setAddress(newAddress);
+        pokerPlayer.setPhone(newPhone);
         editPlayerPage.editPlayer(pokerPlayer);
 
-        Assert.assertEquals(PlayersPageData.TITLE_PLAYERS_PAGE.toString(), webDriver.getTitle(), "Can not edit");
+        SoftAssert soft = new SoftAssert();
+        soft.assertEquals(playersTitle, webDriver.getTitle(), "Can not edit");
+        soft.assertAll();
 
         playersPage.searchPlayerByEmail(pokerPlayer.getEmail());
         playersPage.openEditPlayerPage(pokerPlayer.getEmail());
 
-        PokerPlayer actual = Util.readPokerPlayers(webDriver);
-        Util.assertPokerPlayer(actual, pokerPlayer);
+        EditPlayerPage editPlayerPage = new EditPlayerPage(webDriver);
+        PokerPlayer actual = editPlayerPage.readPokerPlayers();
+        editPlayerPage.assertPokerPlayer(actual, pokerPlayer);
     }
 
-    @Test
-    public void delete() {
+    /**
+     * Steps to reproduce:
+     * 1. Create player.
+     * 2. Search player by email.
+     * 3. Delete player.
+     * 4. Check delete message.
+     */
+    @Test(dataProvider = "deleteData")
+    public void delete(String deleteMsg, String username, String password, String playersTitle, String editPlayersTitle, String emailDomein, String firstName, String lastName, String country, String city, String address, String phone) {
+        create(username, password, playersTitle, editPlayersTitle, emailDomein, firstName, lastName, country, city, address, phone);
+
         playersPage.searchPlayerByEmail(pokerPlayer.getEmail());
         playersPage.deletePlayer(pokerPlayer.getEmail());
         webDriver.switchTo().alert().accept();
 
-        Assert.assertEquals(playersPage.deleteMessage(), PlayersPageData.DELETE_MASSEGE_TEXT_PLAYERS_PAGE.toString(),"Player does not delete");
+        SoftAssert soft = new SoftAssert();
+        soft.assertEquals(playersPage.getDeleteMessage(), deleteMsg,"Player does not delete");
+        soft.assertAll();
     }
 
     /**

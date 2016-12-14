@@ -1,18 +1,51 @@
 package HW3.tests;
 
-import HW3.Data.LogInPageData;
 import HW3.Data.PathsData;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.firefox.FirefoxDriver;
-import org.testng.Assert;
 import org.testng.annotations.*;
 import HW3.pages.LoginPage;
+import org.testng.asserts.SoftAssert;
+
 import java.util.concurrent.TimeUnit;
 
 public class LoginTests {
 
     private WebDriver webDriver;
     private LoginPage loginPage;
+    private SoftAssert softAssert;
+
+    @DataProvider
+    public Object[][] positiveLoginData(){
+        return new Object[][]{
+                {"admin", "123", "Players"}
+        };
+    }
+    @DataProvider
+    public Object[][] wrongPasswordLoginData(){
+        return new Object[][]{
+                {"admin", "12345", "Login", "Invalid username or password"}
+        };
+    }
+    @DataProvider
+    public Object[][] wrongLoginData(){
+        return new Object[][]{
+                {"ada", "123", "Login", "Invalid username or password"}
+        };
+    }
+    @DataProvider
+    public Object[][] emptyFieldsLoginData(){
+        return new Object[][]{
+                {"", "", "Login", "Value is required and can't be empty"}
+        };
+    }
+
+    @DataProvider
+    public Object[][] emptyPasswordLoginData(){
+        return new Object[][]{
+                {"admin", "", "Login", "Value is required and can't be empty"}
+        };
+    }
 
     /**
      * Preconditions:
@@ -21,7 +54,7 @@ public class LoginTests {
     @BeforeTest
     public void beforeTest(){
         webDriver = new FirefoxDriver();
-        webDriver.manage().timeouts().pageLoadTimeout(10, TimeUnit.SECONDS);
+        webDriver.manage().timeouts().pageLoadTimeout(6, TimeUnit.SECONDS);
         webDriver.manage().timeouts().implicitlyWait(5, TimeUnit.SECONDS);
     }
 
@@ -33,6 +66,7 @@ public class LoginTests {
     public void beforeMethod() {
         loginPage = new LoginPage(webDriver);
         loginPage.openHomePage();
+        softAssert = new SoftAssert();
     }
 
     /**
@@ -41,12 +75,14 @@ public class LoginTests {
      * 2. Verify that title equals "Players".
      * 3. Verify that URL not equals URL of login page.
      */
-    @Test
-    public void positiveTest() {
-        loginPage.login(LogInPageData.USER_NAME_INPUT_VALUE_LOGIN_PAGE.toString(), LogInPageData.PASSWORD_INPUT_VALUE_LOGIN_PAGE.toString());
+    /*@Parameters({"username", "password", "title"})*/
+    @Test(dataProvider = "positiveLoginData", dependsOnGroups = "negative")
+    public void positiveTest(String username, String password, String title) {
+        loginPage.login(username, password);
 
-        Assert.assertEquals(webDriver.getTitle(), "Players", "Wrong title after login");
-        Assert.assertNotEquals(webDriver.getCurrentUrl(), PathsData.URL.toString() + PathsData.LOGIN_PAGE.toString(), "You are still on login page");
+        softAssert.assertEquals(webDriver.getTitle(), title, "Wrong title after login");
+        softAssert.assertNotEquals(webDriver.getCurrentUrl(), PathsData.URL.toString() + PathsData.LOGIN_PAGE.toString(), "You are still on login page");
+        softAssert.assertAll();
     }
 
     /**
@@ -56,13 +92,15 @@ public class LoginTests {
      * 3. Verify that title equals "Login".
      * 4. Verify that error message equals "Invalid username or password".
      */
-    @Test
-    public void negativeTestWrongPassword(){
-        loginPage.login(LogInPageData.USER_NAME_INPUT_VALUE_LOGIN_PAGE.toString(), LogInPageData.INCORRECT_PASSWORD_INPUT_VALUE_PAGE.toString());
+    /*@Parameters({"username", "password", "title", "expectedMessage"})*/
+    @Test(dataProvider = "wrongPasswordLoginData", groups = "negative")
+    public void negativeTestWrongPassword(String username, String password, String title, String expectedMessage){
+        loginPage.login(username, password);
 
-        Assert.assertEquals(webDriver.getCurrentUrl(), PathsData.URL.toString() + PathsData.LOGIN_PAGE.toString(), "You are not on login page");
-        Assert.assertEquals(webDriver.getTitle(), LogInPageData.TITLE_LOGIN_PAGE.toString(), "Wrong title after unsuccessful login");
-        Assert.assertEquals(loginPage.getErrMessage(), LogInPageData.ERROR_MESSAGE_TEXT_LOGIN_PAGE.toString(), "Invalid error message in login page");
+        softAssert.assertEquals(webDriver.getCurrentUrl(), PathsData.URL.toString() + PathsData.LOGIN_PAGE.toString(), "You are not on login page");
+        softAssert.assertEquals(webDriver.getTitle(), title, "Wrong title after unsuccessful login");
+        softAssert.assertEquals(loginPage.getErrMessage(), expectedMessage, "Invalid error message in login page");
+        softAssert.assertAll();
     }
 
     /**
@@ -72,13 +110,15 @@ public class LoginTests {
      * 3. Verify that title equals "Login".
      * 4. Verify that error message equals "Invalid username or password".
      */
-    @Test
-    public void negativeTestWrongLogin(){
-        loginPage.login(LogInPageData.INCORRECT_USER_NAME_INPUT_VALUE_PAGE.toString(), LogInPageData.PASSWORD_INPUT_VALUE_LOGIN_PAGE.toString());
+    /*@Parameters({"username", "password", "title", "expectedMessage"})*/
+    @Test(dataProvider = "wrongLoginData", groups = "negative")
+    public void negativeTestWrongLogin(String username, String password, String title, String expectedMessage){
+        loginPage.login(username, password);
 
-        Assert.assertEquals(webDriver.getCurrentUrl(), PathsData.URL.toString() + PathsData.LOGIN_PAGE.toString(), "You are not on login page");
-        Assert.assertEquals(webDriver.getTitle(), LogInPageData.TITLE_LOGIN_PAGE.toString(), "Wrong title after unsuccessful login");
-        Assert.assertEquals(loginPage.getErrMessage(), LogInPageData.ERROR_MESSAGE_TEXT_LOGIN_PAGE.toString(), "Invalid error message in login page");
+        softAssert.assertEquals(webDriver.getCurrentUrl(), PathsData.URL.toString() + PathsData.LOGIN_PAGE.toString(), "You are not on login page");
+        softAssert.assertEquals(webDriver.getTitle(), title, "Wrong title after unsuccessful login");
+        softAssert.assertEquals(loginPage.getErrMessage(), expectedMessage, "Invalid error message in login page");
+        softAssert.assertAll();
     }
 
     /**
@@ -89,23 +129,27 @@ public class LoginTests {
      * 4. Verify that error message for username equals "Value is required and can't be empty".
      * 5. Verify that error message for password equals "Value is required and can't be empty".
      */
-    @Test
-    public void negativeTestEmptyFields(){
-        loginPage.login("", "");
+    /*@Parameters({"username", "password", "title", "expectedMessage"})*/
+    @Test(dataProvider = "emptyFieldsLoginData", groups = "negative")
+    public void negativeTestEmptyFields(String username, String password, String title, String expectedMessage){
+        loginPage.login(username, password);
 
-        Assert.assertEquals(webDriver.getCurrentUrl(), PathsData.URL.toString() + PathsData.LOGIN_PAGE.toString(), "You are not on login page");
-        Assert.assertEquals(webDriver.getTitle(), LogInPageData.TITLE_LOGIN_PAGE.toString(), "Wrong title after unsuccessful login");
-        Assert.assertEquals(loginPage.getErrMessageEmptyUserNameField(), LogInPageData.ERROR_MESSAGE_EMPTY_USER_NAME_TEXT_LOGIN_PAGE.toString(), "Invalid error message in username login page");
-        Assert.assertEquals(loginPage.getErrMessageEmptyPasswordField(), LogInPageData.ERROR_MESSAGE_EMPTY_PASSWORD_TEXT_LOGIN_PAGE.toString(), "Invalid error message in password login page");
+        softAssert.assertEquals(webDriver.getCurrentUrl(), PathsData.URL.toString() + PathsData.LOGIN_PAGE.toString(), "You are not on login page");
+        softAssert.assertEquals(webDriver.getTitle(), title, "Wrong title after unsuccessful login");
+        softAssert.assertEquals(loginPage.getErrMessageEmptyUserNameField(), expectedMessage, "Invalid error message in username login page");
+        softAssert.assertEquals(loginPage.getErrMessageEmptyPasswordField(), expectedMessage, "Invalid error message in password login page");
+        softAssert.assertAll();
     }
 
-    @Test
-    public void negativeTestEmptyPassword(){
-        loginPage.login(LogInPageData.USER_NAME_INPUT_VALUE_LOGIN_PAGE.toString(),"");
+    /*@Parameters({"username", "password", "title", "expectedMessage"})*/
+    @Test(dataProvider = "emptyPasswordLoginData", groups = "negative")
+    public void negativeTestEmptyPassword(String username, String password, String title, String expectedMessage){
+        loginPage.login(username,password);
 
-        Assert.assertEquals(webDriver.getCurrentUrl(), PathsData.URL.toString() + PathsData.LOGIN_PAGE.toString(), "You are not on login page");
-        Assert.assertEquals(webDriver.getTitle(), LogInPageData.TITLE_LOGIN_PAGE.toString(), "Wrong title after unsuccessful login");
-        Assert.assertEquals(loginPage.getErrMessageEmptyPasswordField(), LogInPageData.ERROR_MESSAGE_EMPTY_PASSWORD_TEXT_LOGIN_PAGE.toString(), "Invalid error message in password login page");
+        softAssert.assertEquals(webDriver.getCurrentUrl(), PathsData.URL.toString() + PathsData.LOGIN_PAGE.toString(), "You are not on login page");
+        softAssert.assertEquals(webDriver.getTitle(), title, "Wrong title after unsuccessful login");
+        softAssert.assertEquals(loginPage.getErrMessageEmptyPasswordField(), expectedMessage, "Invalid error message in password login page");
+        softAssert.assertAll();
     }
 
     /**

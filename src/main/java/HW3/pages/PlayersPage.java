@@ -1,43 +1,56 @@
 package HW3.pages;
 
-import HW3.Data.PlayersPageData;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
-
-import java.util.concurrent.TimeUnit;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.support.FindBy;
+import org.openqa.selenium.support.PageFactory;
 
 public class PlayersPage extends Page{
 
-    public PlayersPage() {
-        super();
-    }
+    @FindBy(xpath = ".//a[contains(@href,'/players/insert')]")
+    private WebElement linkToInsertPage;
 
-    public PlayersPage(WebDriver webDriver){super(webDriver);}
+    @FindBy(xpath = ".//input[contains(@id,'__email')]")
+    private WebElement emailInput;
 
-    public PlayersPage(WebDriver webDriver, long time, TimeUnit timeUnit) {
-        super(webDriver, time, timeUnit);
+    @FindBy(xpath = ".//input[contains(@value,'Search')]")
+    private WebElement searchBtn;
+
+    @FindBy(xpath = ".//tr[.//a[text()='email']]//img[@alt='Edit']")
+    private WebElement linkToEditPage;
+
+    @FindBy(xpath = ".//img[@alt='Delete']")
+    private WebElement deleteBtn;
+
+    @FindBy(xpath = ".//div[contains(@id,'datagrid_flash')]/ul/li")
+    private WebElement deleteMsg;
+
+    public PlayersPage(WebDriver webDriver){
+        super(webDriver);
+        PageFactory.initElements(webDriver, this);
     }
 
     public void openInsertPlayerPage() {
-        webDriver.findElement(By.xpath(PlayersPageData.INSERT_LINK_XPATH_PLAYERS_PAGE.toString())).click();
+        linkToInsertPage.click();
     }
 
     public void searchPlayerByEmail(String email) {
-        webDriver.findElement(By.xpath(PlayersPageData.EMAIL_INPUT_XPATH_PLAYERS_PAGE.toString())).clear();
-        webDriver.findElement(By.xpath(PlayersPageData.EMAIL_INPUT_XPATH_PLAYERS_PAGE.toString())).sendKeys(email);
-        webDriver.findElement(By.xpath(PlayersPageData.SEARCH_BUTTON_INPUT_XPATH_PLAYERS_PAGE.toString())).click();
+        emailInput.clear();
+        emailInput.sendKeys(email);
+        searchBtn.click();
     }
 
     public void openEditPlayerPage(String email) {
-        webDriver.findElement(By.xpath(PlayersPageData.EDIT_LINK_XPATH_PLAYERS_PAGE.toString().replaceFirst("email", email))).click();
+        webDriver.findElement(By.xpath(".//tr[.//a[text()='email']]//img[@alt='Edit']".replaceFirst("email", email))).click();
     }
 
 
     public void deletePlayer(String email){
-        webDriver.findElement(By.xpath(PlayersPageData.DELETE_USER_BUTTON_XPATH_PLAYERS_PAGE.toString())).click();
+        deleteBtn.click();
     }
 
-    public String deleteMessage(){
-        return webDriver.findElement(By.xpath(PlayersPageData.DELETE_MESSAGE_XPATH_PLAYERS_PAGE.toString())).getText();
+    public String getDeleteMessage(){
+        return deleteMsg.getText();
     }
 }

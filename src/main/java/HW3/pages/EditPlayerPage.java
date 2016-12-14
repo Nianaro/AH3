@@ -1,73 +1,109 @@
 package HW3.pages;
 
-import HW3.Data.EditPlayerPageData;
 import HW3.Entities.PokerPlayer;
-import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.support.FindBy;
+import org.openqa.selenium.support.PageFactory;
+import org.testng.asserts.SoftAssert;
 
-import java.util.concurrent.TimeUnit;
 
 public class EditPlayerPage extends Page{
-    public EditPlayerPage() {
-        super();
-    }
 
-    public EditPlayerPage(WebDriver webDriver){super(webDriver);}
+    @FindBy(xpath = ".//input[contains(@id,'us_login')]")
+    private WebElement userName;
 
-    public EditPlayerPage(WebDriver webDriver, long time, TimeUnit timeUnit) {
-        super(webDriver, time, timeUnit);
+    @FindBy(xpath = ".//input[contains(@id,'email')]")
+    private WebElement email;
+
+    @FindBy(xpath = ".//input[contains(@id,'us_password')]")
+    private WebElement password;
+
+    @FindBy(xpath = ".//input[contains(@id,'confirm_password')]")
+    private WebElement confirmPassword;
+
+    @FindBy(xpath = ".//input[contains(@id, 'fname')]")
+    private WebElement firstName;
+
+    @FindBy(xpath = ".//input[contains(@id, 'lname')]")
+    private WebElement lastName;
+
+    @FindBy(xpath = ".//input[contains(@id, 'city')]")
+    private WebElement city;
+
+    @FindBy(xpath = ".//select[contains(@id,'country')]")
+    private WebElement country;
+
+    @FindBy(xpath = ".//textarea[contains(@id, 'address')]")
+    private WebElement address;
+
+    @FindBy(xpath = ".//input[contains(@id, 'phone')]")
+    private WebElement phone;
+
+    @FindBy(xpath = ".//input[@value='Save']")
+    private WebElement saveBtn;
+
+    public EditPlayerPage(WebDriver webDriver){
+        super(webDriver);
+        PageFactory.initElements(webDriver, this);
     }
 
     public void editPlayer(PokerPlayer player) {
-        webDriver.findElement(By.xpath(EditPlayerPageData.FIRST_NAME_INPUT_XPATH_INSERT_EDIT_PAGE.toString())).clear();
-        webDriver.findElement(By.xpath(EditPlayerPageData.FIRST_NAME_INPUT_XPATH_INSERT_EDIT_PAGE.toString())).sendKeys(player.getFirstName());
+        firstName.clear();
+        firstName.sendKeys(player.getFirstName());
 
-        webDriver.findElement(By.xpath(EditPlayerPageData.LAST_NAME_INPUT_XPATH_INSERT_EDIT_PAGE.toString())).clear();
-        webDriver.findElement(By.xpath(EditPlayerPageData.LAST_NAME_INPUT_XPATH_INSERT_EDIT_PAGE.toString())).sendKeys(player.getLastName());
+        lastName.clear();
+        lastName.sendKeys(player.getLastName());
 
-        webDriver.findElement(By.xpath(EditPlayerPageData.CITY_INPUT_XPATH_INSERT_EDIT_PAGE.toString())).clear();
-        webDriver.findElement(By.xpath(EditPlayerPageData.CITY_INPUT_XPATH_INSERT_EDIT_PAGE.toString())).sendKeys(player.getCity());
+        city.clear();
+        city.sendKeys(player.getCity());
 
-        webDriver.findElement(By.xpath(EditPlayerPageData.COUNTRY_SELCT_XPATH_INSERT_EDIT_PAGE.toString())).sendKeys(player.getCountry());
+        country.sendKeys(player.getCountry());
 
-        webDriver.findElement(By.xpath(EditPlayerPageData.ADDRESS_TEXTAREA_XPATH_INSERT_EDIT_PAGE.toString())).clear();
-        webDriver.findElement(By.xpath(EditPlayerPageData.ADDRESS_TEXTAREA_XPATH_INSERT_EDIT_PAGE.toString())).sendKeys(player.getAddress());
+        address.clear();
+        address.sendKeys(player.getAddress());
 
+        phone.clear();
+        phone.sendKeys(player.getPhone());
 
-        webDriver.findElement(By.xpath(EditPlayerPageData.PHONE_INPUT_XPATH_INSERT_EDIT_PAGE.toString())).clear();
-        webDriver.findElement(By.xpath(EditPlayerPageData.PHONE_INPUT_XPATH_INSERT_EDIT_PAGE.toString())).sendKeys(player.getPhone());
-
-        webDriver.findElement(By.xpath(EditPlayerPageData.SAVE_BUTTON_INPUT_XPATH_INSERT_EDIT_PAGE.toString())).click();
+        saveBtn.click();
     }
 
     public void addPlayer(PokerPlayer player) {
-        webDriver.findElement(By.xpath(EditPlayerPageData.USER_NAME_INPUT_XPATH_INSERT_EDIT_PAGE.toString())).sendKeys(player.getUserName());
+        userName.sendKeys(player.getUserName());
 
-        webDriver.findElement(By.xpath(EditPlayerPageData.EMAIL_INPUT_XPATH_INSERT_EDIT_PAGE.toString())).sendKeys(player.getEmail());
+        email.sendKeys(player.getEmail());
 
-        webDriver.findElement(By.xpath(EditPlayerPageData.PASSWORD_INPUT_XPATH_INSERT_EDIT_PAGE.toString())).sendKeys(player.getPassword());
+        password.sendKeys(player.getPassword());
 
-        webDriver.findElement(By.xpath(EditPlayerPageData.CONFIRM_PASSWORD_INPUT_XPATH_INSERT_EDIT_PAGE.toString())).sendKeys(player.getPassword());
+        confirmPassword.sendKeys(player.getPassword());
 
-        webDriver.findElement(By.xpath(EditPlayerPageData.FIRST_NAME_INPUT_XPATH_INSERT_EDIT_PAGE.toString())).clear();
-        webDriver.findElement(By.xpath(EditPlayerPageData.FIRST_NAME_INPUT_XPATH_INSERT_EDIT_PAGE.toString())).sendKeys(player.getFirstName());
-
-        webDriver.findElement(By.xpath(EditPlayerPageData.LAST_NAME_INPUT_XPATH_INSERT_EDIT_PAGE.toString())).clear();
-        webDriver.findElement(By.xpath(EditPlayerPageData.LAST_NAME_INPUT_XPATH_INSERT_EDIT_PAGE.toString())).sendKeys(player.getLastName());
-
-        webDriver.findElement(By.xpath(EditPlayerPageData.CITY_INPUT_XPATH_INSERT_EDIT_PAGE.toString())).clear();
-        webDriver.findElement(By.xpath(EditPlayerPageData.CITY_INPUT_XPATH_INSERT_EDIT_PAGE.toString())).sendKeys(player.getCity());
-
-        webDriver.findElement(By.xpath(EditPlayerPageData.COUNTRY_SELCT_XPATH_INSERT_EDIT_PAGE.toString())).sendKeys(player.getCountry());
-
-        webDriver.findElement(By.xpath(EditPlayerPageData.ADDRESS_TEXTAREA_XPATH_INSERT_EDIT_PAGE.toString())).clear();
-        webDriver.findElement(By.xpath(EditPlayerPageData.ADDRESS_TEXTAREA_XPATH_INSERT_EDIT_PAGE.toString())).sendKeys(player.getAddress());
-
-
-        webDriver.findElement(By.xpath(EditPlayerPageData.PHONE_INPUT_XPATH_INSERT_EDIT_PAGE.toString())).clear();
-        webDriver.findElement(By.xpath(EditPlayerPageData.PHONE_INPUT_XPATH_INSERT_EDIT_PAGE.toString())).sendKeys(player.getPhone());
-
-        webDriver.findElement(By.xpath(EditPlayerPageData.SAVE_BUTTON_INPUT_XPATH_INSERT_EDIT_PAGE.toString())).click();
+        editPlayer(player);
     }
+
+    public PokerPlayer readPokerPlayers() {
+        PokerPlayer expected = new PokerPlayer();
+        expected.setEmail(email.getAttribute("value"), "");
+        expected.setFirstName(firstName.getAttribute("value"));
+        expected.setLastName(lastName.getAttribute("value"));
+        expected.setCity(city.getAttribute("value"));
+        expected.setCountry(country.getAttribute("value"));
+        expected.setAddress(address.getAttribute("value"));
+        expected.setPhone(phone.getAttribute("value"));
+        return expected;
+    }
+
+    public void assertPokerPlayer(PokerPlayer actual, PokerPlayer expected){
+        SoftAssert softAssert = new SoftAssert();
+        softAssert.assertEquals(actual.getEmail(), expected.getEmail(), "Inappropriate email");
+        softAssert.assertEquals(actual.getFirstName(), expected.getFirstName(), "Inappropriate first name");
+        softAssert.assertEquals(actual.getLastName(), expected.getLastName(), "Inappropriate last name");
+        softAssert.assertEquals(actual.getCity(), expected.getCity(), "Inappropriate city");
+        softAssert.assertEquals(actual.getCountry(), expected.getCountry(), "Inappropriate country");
+        softAssert.assertEquals(actual.getAddress(), expected.getAddress(), "Inappropriate address");
+        softAssert.assertEquals(actual.getPhone(), expected.getPhone(), "Inappropriate phone");
+        softAssert.assertAll();
+    }
+
 
 }
