@@ -1,0 +1,39 @@
+<!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd" >
+<suite name="My suite" verbose="1">
+    <test name="LoginTests">
+         <classes>
+             <class name="HW3.tests.LoginTests">
+                 <methods>
+                     <include name="positiveTest"/>
+                     <include name="negativeTestWrongPassword"/>
+                     <include name="negativeTestWrongLogin"/>
+                     <include name="negativeTestEmptyFields"/>
+                     <include name="negativeTestEmptyPassword"/>
+                 </methods>
+             </class>
+         </classes>
+     </test>
+    <test name="CRUDTests">
+        <classes>
+            <class name="HW3.tests.CRUDUserTests">
+                <methods>
+                    <include name="create"/>
+                    <include name="read"/>
+                    <include name="update"/>
+                    <include name="delete"/>
+                </methods>
+            </class>
+        </classes>
+    </test>
+    <test name="Boxrs">
+        <classes>
+            <class name="dragAndDrop.ActionTest">
+                <methods>
+                    <include name="dragAndDropTest"/>
+                    <include name="descSort"/>
+                    <include name="asceSort"/>
+                </methods>
+            </class>
+        </classes>
+    </test>
+</suite>
